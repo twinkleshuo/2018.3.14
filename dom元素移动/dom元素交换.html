@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			body {
+				margin: 0;
+				background-color:hotpink;
+			}
+			
+			ul {
+				width: 400px;
+				margin: 100px auto;
+				padding: 0;
+				list-style: none;
+				position: relative;
+			}
+			
+			li {
+				position: relative;
+				width: 500px;
+				height: 65px;
+				box-sizing: border-box;
+				overflow: hidden;
+				line-height: 36px;
+				padding: 14px;
+				margin-bottom: 6px;
+				border-radius: 6px;
+				background-color:aliceblue;
+			}
+			
+			li:nth-child(2) {
+				margin-top: 0px;
+			
+			}
+			
+			li span {
+				float: left;
+			}
+			
+			li span:nth-child(2) {
+				width: 310px;
+				margin: 0 10px 0 10px;
+			}
+			
+			.line {
+				width: 4px;
+				height: 36px;
+				background-color: red;
+			}
+			
+			.top,
+			.bottom {
+				cursor: pointer;
+				width: 62px;
+				height: 34px;
+				line-height: 34px;
+				box-sizing: border-box;
+				border-radius: 4px;
+				border: 2px solid pink;
+				color: pink;
+				text-align: center;
+				margin: 0px 2px;
+			}
+		</style>
+		<script src="MTween.js"></script>
+	</head>
+
+	<body>
+		<ul>
+			<li>
+				<span class="line"></span>
+				<span>ajax</span>
+				<span class="top">上移</span>
+				<span class="bottom">下移</span>
+			</li>
+			<li>
+				<span class="line"></span>
+				<span>jquery</span>
+				<span class="top">上移</span>
+				<span class="bottom">下移</span>
+			</li>
+			<li>
+				<span class="line"></span>
+				<span>移动端</span>
+				<span class="top">上移</span>
+				<span class="bottom">下移</span>
+			</li>
+			<li>
+				<span class="line"></span>
+				<span>服务器</span>
+				<span class="top">上移</span>
+				<span class="bottom">下移</span>
+			</li>
+			<li>
+				<span class="line"></span>
+				<span>canvas游戏</span>
+				<span class="top">上移</span>
+				<span class="bottom">下移</span>
+			</li>
+		</ul>
+		<script>
+			
+			//获取元素
+			var goTops = document.querySelectorAll('.top');
+			var goBottoms = document.querySelectorAll('.bottom');
+			var canMove = true;
+			var lis = document.querySelectorAll('li')
+			for(var i = 0; i < goTops.length; i++) {
+
+				//上移按钮点击事件
+				goTops[i].onclick = function() {
+					if(canMove) {
+						//可以点击为否
+						canMove = false;
+						var _this = this;
+						//判断是否存在上一个
+						if(this.parentNode.previousElementSibling) {
+							var e1 = this.parentNode;//当前元素父级
+							var e2 = this.parentNode.previousElementSibling;//当前元素父级上一个
+
+							var top1 = e1.offsetTop; //获取当前父级的top值
+							var top2 = e2.offsetTop; //当前父级的上一个元素的top值
+
+							//top1>top2
+							MTween(e1, top2 - top1, 500, 'top', 'linear'); //将当前父级向上移动
+							MTween(e2, top1 - top2, 525, 'top', 'linear', function() { //将当前父级的上一个元素向下移动
+								e1.style = ''; //当前父级的style清空
+								e2.style = ''; //当前父级的上一个元素style清空
+								_this.parentElement.parentElement.insertBefore(e1, e2); //将当前父级和当前父级的上一个元素互换位置
+								canMove = true; //可以点击
+
+							});
+						} else {
+
+							var top1 = this.parentNode.offsetTop; //获取当前父级的top值
+							var top2 = this.parentNode.parentElement.lastElementChild.offsetTop; //当前父级的父级的最后一个元素的top值
+
+							for(var i = 0; i < lis.length; i++) {//除了当前元素父级 其他全部上移71px
+								if(lis[i] != this.parentNode) {
+									MTween(lis[i], -71, 500, 'top', 'linear')
+								}
+							}
+							//当前元素父级移动到最后位置
+							MTween(this.parentNode, top2 - top1, 525, 'top', 'linear', function() {
+								for(var i = 0; i < lis.length; i++) {
+									lis[i].style = ''
+								};
+								_this.parentElement.parentElement.insertBefore(_this.parentNode, null);//交换位置
+								canMove = true; //可以点击
+
+							}); //当前元素移动到最后
+						}
+
+					}
+
+				}
+				goBottoms[i].onclick = function() {
+					if(canMove) {//判断是否可以点击
+						canMove = false;
+						var _this = this;
+						if(this.parentNode.nextElementSibling) {
+							var top1 = this.parentElement.offsetTop;
+							var top2 = this.parentNode.nextElementSibling.offsetTop;
+							MTween(this.parentNode, top2 - top1, 500, 'top', 'linear');
+							MTween(this.parentNode.nextElementSibling, top1 - top2, 525, 'top', 'linear', function() {
+								_this.parentNode.style = '';
+								_this.parentNode.nextElementSibling.style = '';
+								_this.parentNode.parentNode.insertBefore(_this.parentNode, _this.parentNode.nextElementSibling.nextElementSibling);
+								canMove = true;
+							});
+						}else{
+							this.parentNode.style.zIndex = '-999'
+							var top1 = this.parentElement.offsetTop;
+							var top2 = this.parentNode.firstElementChild.offsetTop;
+							
+							for (var i = 0; i < lis.length; i++) {
+								if(lis[i]!=this.parent){
+									MTween(lis[i], 71, 500, 'top', 'linear')
+								}
+							}
+							MTween(this.parentNode, top2 - top1, 525, 'top', 'linear', function() {
+								for(var i = 0; i < lis.length; i++) {
+									lis[i].style = ''
+								};
+								_this.parentElement.parentElement.insertBefore(_this.parentNode, _this.parentNode.parentNode.firstElementChild);
+								canMove = true; //可以点击
+
+							});
+						}
+
+					}
+				}
+			}
+		</script>
+	</body>
+
+</html>
